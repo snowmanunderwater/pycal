@@ -1,0 +1,72 @@
+#!/usr/bin/env python3
+
+from datetime import datetime
+from operator import add, mul, sub, truediv
+from random import choice, randint
+from time import time as timecounter
+import argparse
+
+operations = ((add, '+'), (sub, '-'), (mul, '*'), (truediv, '/'))
+
+HISTORY_FILE = 'data'
+
+
+# table headers
+# operation, a, b, user_answer, correct_answer, difference, cur_date, cur_time, time_for_complite
+def write_to_history(data):
+    with open(HISTORY_FILE, 'a') as f:
+        f.write(','.join(map(str, data)) + '\n')
+
+
+def main():
+    while True:
+        try:
+            operation = choice(operations)
+            a = randint(2, 100)
+            b = randint(2, 100)
+
+            correct_answer = round(operation[0](a, b), 2)
+
+            print(f"{a} {operation[1]} {b} = ", end='')
+            t1 = timecounter()
+
+            # !FIXME проверить на строку
+            user_answer = input()
+
+            if user_answer.isidentifier():
+                print('Bye')
+                exit()
+
+            # user input
+            user_answer = float(user_answer)
+            t2 = timecounter()
+
+            # time for complite task
+            time_for_complite = round(t2 - t1, 2)
+
+            # current date
+            cur_date = datetime.today().date().isoformat()
+
+            # current time
+            cur_time = datetime.today().time().isoformat('seconds')
+
+            # percentage difference between numbers
+            difference = round(user_answer / correct_answer, 2)
+
+            write_to_history(
+                (operation[1], a, b, user_answer, correct_answer, difference,
+                 cur_date, cur_time, time_for_complite))
+
+        except (KeyboardInterrupt, EOFError):
+            print('\nBye')
+            exit()
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-c",
+                        "--clear",
+                        help="increase output verbosity",
+                        action="store_true")
+    args = parser.parse_args()
+    main()
