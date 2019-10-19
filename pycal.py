@@ -7,6 +7,7 @@ from time import time as timecounter
 import argparse
 
 operations = ((add, '+'), (sub, '-'), (mul, '*'), (truediv, '/'))
+today = datetime.today()
 
 HISTORY_FILE = 'data'
 
@@ -16,6 +17,16 @@ HISTORY_FILE = 'data'
 def write_to_history(data):
     with open(HISTORY_FILE, 'a') as f:
         f.write(','.join(map(str, data)) + '\n')
+
+
+# !FIXME
+# протестировать при всех случаях
+#  a, b
+# -a, b
+#  a, -b
+# -a, -b
+def calc_difference(a, b):
+    return round((a - b) / a * 100, 2)
 
 
 def main():
@@ -28,9 +39,9 @@ def main():
             correct_answer = round(operation[0](a, b), 2)
 
             print(f"{a} {operation[1]} {b} = ", end='')
-            t1 = timecounter()
 
-            # !FIXME проверить на строку
+            time_start = timecounter()
+
             user_answer = input()
 
             if user_answer.isidentifier():
@@ -38,20 +49,18 @@ def main():
                 exit()
 
             # user input
-            user_answer = float(user_answer)
-            t2 = timecounter()
+            try:
+                user_answer = float(user_answer)
+            except ValueError:
+                print('Only numbers awailable.')
+                continue
 
-            # time for complite task
-            time_for_complite = round(t2 - t1, 2)
+            time_end = timecounter()
 
-            # current date
-            cur_date = datetime.today().date().isoformat()
-
-            # current time
-            cur_time = datetime.today().time().isoformat('seconds')
-
-            # percentage difference between numbers
-            difference = round(user_answer / correct_answer, 2)
+            time_for_complite = round(time_start - time_end, 2)
+            cur_date = today.date().isoformat()
+            cur_time = today.time().isoformat('seconds')
+            difference = calc_difference(user_answer, correct_answer)
 
             write_to_history(
                 (operation[1], a, b, user_answer, correct_answer, difference,
